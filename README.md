@@ -75,3 +75,15 @@ effectively with the `newperms` function. At the end of installation,
 `newperms` removes those settings, giving the user the ability to run only
 several basic sudo commands without a password (`shutdown`, `reboot`,
 `pacman -Syu`).
+
+### keep progs.csv up to date
+Use following commands to keep the progs.csv up to date with current setup:
+* `pacman -Qqe`: list all packages explicitly installed
+* `pacman -Qqm`: list all foreign (including AUR) packages explicitly installed
+* `INPUT | grep -v PATTERN`: return all lines of INPUT not matched by PATTERN
+
+combining above commands:
+```sh
+# list foreign packages not part of progs.csv:
+pacman -Qqm | grep -v "$(cat progs.csv | tail --lines=+2 | awk -F',' '{print($2)}')"
+```

@@ -6,16 +6,17 @@
 ### OPTIONS AND VARIABLES ###
 
 while getopts ":a:r:b:p:h" o; do case "${o}" in
-	h) printf "Optional arguments for custom use:\\n  -r: Dotfiles repository (local file or url)\\n  -p: Dependencies and programs csv (local file or url)\\n  -a: AUR helper (must have pacman-like syntax)\\n  -h: Show this message\\n" && exit ;;
+	h) printf "Optional arguments for custom use:\\n  -r: Dotfiles repository (local file or url)\\n  -p: Dependencies and programs csv (local file or url)\\n  -a: AUR helper (must have pacman-like syntax)\\n  -v: directory path of the local dotfiles repo\\n  -h: Show this message\\n" && exit ;;
 	r) dotfilesrepo=${OPTARG} && git ls-remote "$dotfilesrepo" || exit ;;
+	v) ricepath=${OPTARG} ;;
 	b) repobranch=${OPTARG} ;;
 	p) progsfile=${OPTARG} ;;
 	a) aurhelper=${OPTARG} ;;
 	*) printf "Invalid option: -%s\\n" "$OPTARG" && exit ;;
 esac done
 
-[ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/lukesmithxyz/voidrice.git"
-[ -z "$progsfile" ] && progsfile="https://raw.githubusercontent.com/LukeSmithxyz/LARBS/master/progs.csv"
+[ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/remolueoend/voidrice.git"
+[ -z "$progsfile" ] && progsfile="https://raw.githubusercontent.com/remolueoend/LARBS/master/progs.csv"
 [ -z "$aurhelper" ] && aurhelper="yay"
 [ -z "$repobranch" ] && repobranch="master"
 
@@ -216,11 +217,12 @@ dialog --title "LARBS Installation" --infobox "Finally, installing \`libxft-bgra
 yes | sudo -u "$name" $aurhelper -S libxft-bgra >/dev/null 2>&1
 
 # Install the dotfiles in the user's home directory
-putgitrepo "$dotfilesrepo" "/home/$name" "$repobranch"
-rm -f "/home/$name/README.md" "/home/$name/LICENSE" "/home/$name/FUNDING.yml"
+[ -z "$ricepath" ] && ricepath="/home/$name/voidrice"
+putgitrepo "$dotfilesrepo" "$ricepath" "$repobranch"
+rm -f "$ricepath/README.md" "$ricepath/LICENSE" "$ricepath/FUNDING.yml"
 # make git ignore deleted LICENSE & README.md files
-git update-index --assume-unchanged "/home/$name/README.md"
-git update-index --assume-unchanged "/home/$name/LICENSE"
+git update-index --assume-unchanged "$ricepath/README.md"
+git update-index --assume-unchanged "$ricepath/LICENSE"
 
 # Most important command! Get rid of the beep!
 systembeepoff
